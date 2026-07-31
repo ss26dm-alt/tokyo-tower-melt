@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>東京タワー、溶けます</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&display=swap');
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    background: linear-gradient(180deg, #FFE9C7 0%, #FFD199 35%, #FFB56B 65%, #FF9A4D 100%);
+    transition: background 1.2s ease;
+  }
+
+  #sky {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #heat {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      transparent, transparent 2px, rgba(255,255,255,0.02) 3px
+    );
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .sun {
+    position: absolute;
+    top: 6%;
+    right: 10%;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFF3C4, #FF6B35 75%);
+    box-shadow: 0 0 60px 20px rgba(255,150,60,0.5);
+    animation: pulse 2.4s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* --- danmaku layer (niconico-style scrolling comments) --- */
+  #danmaku {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    overflow: hidden;
+  }
+  .comment {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+      -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000,
+      -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000,
+      0 0 6px rgba(0,0,0,0.4);
+    will-change: transform;
+    animation: flow linear forwards;
+  }
+  @keyframes flow {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-100vw - 100%)); }
+  }
+
+  #stage {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 340px;
+    height: 70%;
+    z-index: 2;
+    perspective: 700px;
+  }
+
+  #ground {
+    position: absolute;
+    bottom: 0;
+    left: -200px;
+    width: 740px;
+    height: 40px;
+    background: #6b6357;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  }
+
+  #puddleWrap {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 340px;
+    height: 60px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .puddle {
+    position: absolute;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff9548 0%, #e05f0c 65%, transparent 100%);
+    opacity: 0;
+    filter: blur(1px);
+    transition: opacity 0.6s ease, width 0.6s ease, height 0.6s ease, left 0.6s ease;
+  }
+
+  #tower {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    width: 220px;
+    height: 100%;
+    transform-origin: bottom center;
+    transform: translateX(-50%);
+    transition: filter 0.5s ease;
+  }
+
+  #tower svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  #label {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    width: 92%;
+    max-width: 420px;
+  }
+
+  #label h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: clamp(24px, 7vw, 30px);
+    margin: 0;
+    color: #5a2e0d;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 0 rgba(255,255,255,0.4);
+  }
+
+  #label p {
+    margin: 6px 0 0;
+    font-size: clamp(14px, 4vw, 16px);
+    line-height: 1.5;
+    color: #7a3f14;
+    font-weight: 600;
+  }
+
+  #hud {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 18px 20px 24px;
+    background: linear-gradient(0deg, rgba(90,40,10,0.35), transparent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  #tempLabel {
+    font-weight: 900;
+    font-size: 17px;
+    color: #4a2200;
+    min-width: 68px;
+    text-align: center;
+    background: rgba(255,255,255,0.65);
+    border-radius: 10px;
+    padding: 8px 8px;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 16px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #FFD8A8, #FF6B35, #C81E00);
+    outline: none;
+    touch-action: pan-x;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 5px solid #C81E00;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 5px solid #C81E00;
+    cursor: pointer;
+  }
+
+  #resetBtn {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    background: #4a2200;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 24px;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  #resetBtn:hover { opacity: 1; }
+
+  #yajiRow {
+    max-width: 380px;
+  }
+  #yajiInput {
+    flex: 1;
+    min-width: 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: 999px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.85);
+    color: #4a2200;
+  }
+  #yajiInput::placeholder { color: #b3835a; }
+  #yajiSend {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    background: #C81E00;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 22px;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  #yajiSend:hover { opacity: 1; }
+
+  #medal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%) scale(0.6);
+    background: #fff8ec;
+    border: 3px solid #C81E00;
+    border-radius: 20px;
+    padding: 28px 26px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(.2,1.4,.4,1);
+    z-index: 40;
+    width: 88%;
+    max-width: 300px;
+  }
+  #medal.show {
+    opacity: 1;
+    transform: translate(-50%,-50%) scale(1);
+  }
+  #medal .badge { font-size: 42px; }
+  #medal h2 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 21px;
+    color: #C81E00;
+    margin: 8px 0 6px;
+  }
+  #medal p {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #6b4423;
+    margin: 0 0 4px;
+  }
+  #medal .pattern {
+    font-size: 13px;
+    color: #a85a1e;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  #medal #resetBtn {
+    display: inline-block;
+    margin-top: 18px;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+<div id="sky">
+  <div class="sun"></div>
+  <div id="heat"></div>
+  <div id="danmaku"></div>
+
+  <div id="label">
+    <h1>東京タワー、溶けます</h1>
+    <p>スライダーで気温を上げるとタワーが限界を迎えます<br>応援のヤジも飛ばしてね</p>
+  </div>
+
+  <div id="stage">
+    <div id="tower">
+      <svg viewBox="0 0 220 480" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="towerGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FF9F5A"/>
+            <stop offset="55%" stop-color="#F1631A"/>
+            <stop offset="100%" stop-color="#D64600"/>
+          </linearGradient>
+          <linearGradient id="whiteGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FDF6EE"/>
+            <stop offset="100%" stop-color="#EDE1D2"/>
+          </linearGradient>
+        </defs>
+        <g id="towerBody">
+          <g id="bone1" data-pivot-x="110" data-pivot-y="472">
+            <path d="M108,26 L38,472 L64,472 L104,150 Z" fill="url(#towerGrad)"/>
+            <path d="M112,26 L182,472 L156,472 L116,150 Z" fill="url(#towerGrad)"/>
+            <path d="M110,26 L64,472 L86,472 L109,140 Z" fill="url(#whiteGrad)" opacity="0.85"/>
+            <path d="M110,26 L156,472 L134,472 L111,140 Z" fill="url(#whiteGrad)" opacity="0.85"/>
+            <path d="M50,440 L170,440" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+            <path d="M56,400 L164,400" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+            <path d="M50,440 L110,360 L170,440" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+
+            <g id="bone2" data-pivot-x="110" data-pivot-y="360">
+              <path d="M62,360 L158,360" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+              <path d="M68,320 L152,320" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+              <path d="M56,400 L110,330 L164,400" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+              <path d="M62,360 L110,300 L158,360" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+              <rect x="72" y="330" width="76" height="20" rx="2" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
+
+              <g id="bone3" data-pivot-x="110" data-pivot-y="240">
+                <path d="M75,280 L145,280" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+                <path d="M82,240 L138,240" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+                <path d="M89,200 L131,200" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+                <path d="M68,320 L110,270 L152,320" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+                <path d="M75,280 L110,240 L145,280" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+                <path d="M82,240 L110,210 L138,240" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+
+                <g id="bone4" data-pivot-x="110" data-pivot-y="150">
+                  <rect x="86" y="160" width="48" height="30" rx="3" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
+                  <rect x="95" y="95" width="30" height="20" rx="2" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
+
+                  <g id="bone5" data-pivot-x="110" data-pivot-y="95">
+                    <path d="M107,26 L100,95 L120,95 L113,26 Z" fill="url(#towerGrad)" stroke="#B03A00" stroke-width="1.5"/>
+                    <line x1="102" y1="80" x2="118" y2="80" stroke="#B03A00" stroke-width="1.3"/>
+                    <line x1="103" y1="65" x2="117" y2="65" stroke="#B03A00" stroke-width="1.3"/>
+                    <line x1="104" y1="50" x2="116" y2="50" stroke="#B03A00" stroke-width="1.3"/>
+                    <line x1="110" y1="4" x2="110" y2="27" stroke="#B03A00" stroke-width="3"/>
+                    <circle cx="110" cy="3" r="3" fill="#FFD23F"/>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div id="puddleWrap">
+      <div class="puddle" id="p1"></div>
+      <div class="puddle" id="p2"></div>
+      <div class="puddle" id="p3"></div>
+    </div>
+    <div id="ground"></div>
+  </div>
+
+  <div id="hud">
+    <div class="controls">
+      <span id="tempLabel">28℃</span>
+      <input type="range" id="tempSlider" min="28" max="60" value="28" step="1">
+    </div>
+    <div class="controls" id="yajiRow">
+      <input type="text" id="yajiInput" placeholder="ヤジを飛ばす…" maxlength="20">
+      <button id="yajiSend">送信</button>
+    </div>
+  </div>
+
+  <div id="medal">
+    <div class="badge">🏅</div>
+    <h2>東京タワー溶解マイスター</h2>
+    <p>おめでとうございます。あなたは東京タワーを完全に液状化させました。この称号は誰の役にも立ちません。</p>
+    <div class="pattern" id="patternResult"></div>
+    <button id="resetBtn">冷やす（やり直す）</button>
+  </div>
+</div>
+
+<script>
+  const slider = document.getElementById('tempSlider');
+  const tempLabel = document.getElementById('tempLabel');
+  const tower = document.getElementById('tower');
+  const danmaku = document.getElementById('danmaku');
+  const heat = document.getElementById('heat');
+  const medal = document.getElementById('medal');
+  const patternResult = document.getElementById('patternResult');
+  const resetBtn = document.getElementById('resetBtn');
+  const yajiInput = document.getElementById('yajiInput');
+  const yajiSend = document.getElementById('yajiSend');
+  const body = document.body;
+  const puddles = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3')];
+
+  /* ---------- melt "personality" — randomized each run ---------- */
+  const PATTERNS = [
+    { key: 'left',      label: '左くねくねタイプ', skewSign: 1,  squashBias: 1.0,  wobble: 1.0 },
+    { key: 'right',     label: '右くねくねタイプ', skewSign: -1, squashBias: 1.0,  wobble: 1.0 },
+    { key: 'slump',     label: 'ベシャッと潰れタイプ', skewSign: 0,  squashBias: 1.5,  wobble: 0.3 },
+    { key: 'curveLeft', label: '右に曲がって崩れるタイプ', skewSign: 1, squashBias: 0.9, wobble: 0.6 },
+    { key: 'curveRight', label: '左に曲がって崩れるタイプ', skewSign: -1, squashBias: 0.9, wobble: 0.6 },
+    { key: 'front',      label: '手前に倒れるタイプ', skewSign: 0, squashBias: 1.0, wobble: 0.4 },
+    { key: 'back',       label: '奥に倒れるタイプ', skewSign: 0, squashBias: 1.0, wobble: 0.4 },
+  ];
+  // bones from base (bone1) to tip (bone5); each carries the ones above it
+  const boneEls = ['bone1','bone2','bone3','bone4','bone5'].map(id => document.getElementById(id));
+  let pattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
+  let seed = Math.random() * 1000;
+
+  /* ---------- niconico-style danmaku comments ---------- */
+  const commentBank = {
+    early: [
+      "まだいけるいける", "余裕そう", "序盤オツ", "今日も暑いね〜",
+      "見てるだけで暑い", "wwww", "はじまた", "同接すごい", "888888"
+    ],
+    mid: [
+      "あっ…", "ちょっと待って", "曲がってきたｗ", "これはやばい",
+      "実況が忙しい", "オイオイオイ", "香ばしくなってきた", "溶解不可避",
+      "誰か止めて", "草生える", "まって熱すぎん？", "これは事故"
+    ],
+    late: [
+      "限界突破", "耐えて〜！！！", "アーッ", "ｷﾀ━━━(ﾟ∀ﾟ)━━━!!",
+      "もう団子じゃん", "www原型ない", "祭りだ", "実質新作アート",
+      "誰がこんな気温にした", "犯人この中にいる", "尊死"
+    ],
+    end: [
+      "溶解おめでとう🎉", "完走お疲れ様でした", "伝説の回", "また溶かそう",
+      "GJ", "神回", "これは殿堂入り", "8888888888"
+    ]
+  };
+
+  function pickComment(t) {
+    let pool;
+    if (t < 36) pool = commentBank.early;
+    else if (t < 46) pool = commentBank.mid;
+    else if (t < 59) pool = commentBank.late;
+    else pool = commentBank.end;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function spawnComment(text, isOwn) {
+    const el = document.createElement('div');
+    el.className = 'comment';
+    el.textContent = text;
+    const fontSize = isOwn ? 26 + Math.random() * 6 : 17 + Math.random() * 15;
+    el.style.fontSize = fontSize + 'px';
+    if (isOwn) {
+      el.style.color = '#FFE44D';
+      el.style.top = (10 + Math.random() * 30) + '%';
+    } else {
+      el.style.top = (Math.random() * 82) + '%';
+    }
+    el.style.left = '100%';
+    const duration = isOwn ? 5.5 : 4.5 + Math.random() * 3.5;
+    el.style.animationDuration = duration + 's';
+    danmaku.appendChild(el);
+    setTimeout(() => el.remove(), duration * 1000 + 200);
+  }
+
+  let danmakuTimer = null;
+  function startDanmaku(intensityFn) {
+    stopDanmaku();
+    const tick = () => {
+      const t = parseInt(slider.value, 10);
+      spawnComment(pickComment(t));
+      const interval = Math.max(220, 900 - (t - 28) * 24 + Math.random() * 300);
+      danmakuTimer = setTimeout(tick, interval);
+    };
+    tick();
+  }
+  function stopDanmaku() {
+    if (danmakuTimer) clearTimeout(danmakuTimer);
+    danmakuTimer = null;
+  }
+
+  // own yaji keeps recurring on its own timer, independent of the random
+  // comment stream, until the user resets (cools the tower down)
+  let ownYajiList = [];
+  let ownYajiTimer = null;
+  function startOwnYajiLoop() {
+    stopOwnYajiLoop();
+    const tick = () => {
+      if (ownYajiList.length > 0) {
+        const idx = Math.floor(Math.random() * ownYajiList.length);
+        spawnComment(ownYajiList[idx], true);
+      }
+      ownYajiTimer = setTimeout(tick, 3200 + Math.random() * 2200);
+    };
+    ownYajiTimer = setTimeout(tick, 3200 + Math.random() * 2200);
+  }
+  function stopOwnYajiLoop() {
+    if (ownYajiTimer) clearTimeout(ownYajiTimer);
+    ownYajiTimer = null;
+  }
+
+  function update() {
+    const t = parseInt(slider.value, 10);
+    tempLabel.textContent = t + '℃';
+
+    const progress = Math.min(1, Math.max(0, (t - 28) / (60 - 28)));
+
+    // base melt math, modulated by chosen pattern + a per-run seed for organic variation
+    const wobble = Math.sin(progress * 6 + seed) * pattern.wobble;
+    const squash = 1 - progress * 0.62 * pattern.squashBias;
+    const widen = 1 + progress * (pattern.key === 'slump' ? 0.75 : 0.4);
+    const skew = pattern.key === 'slump'
+      ? wobble * 3
+      : pattern.skewSign * (progress * 16 + wobble * 4);
+    const blur = progress * 3.2;
+    const droop = progress * (pattern.key === 'slump' ? 55 : 40);
+    const originShift = pattern.key === 'slump' ? 0 : pattern.skewSign * progress * 18;
+
+    if (pattern.key === 'curveLeft' || pattern.key === 'curveRight') {
+      // curved bend: base barely moves, each bone above adds more lean,
+      // producing a smooth C-curve instead of a straight skew.
+      tower.style.transform = `translateX(-50%) translateY(${droop * 0.5}px)`;
+      tower.style.filter = `blur(${blur}px) saturate(${1 + progress * 0.6})`;
+
+      // per-bone angle grows from base to tip (base ~0deg, tip most bent)
+      const boneWeights = [0.02, 0.12, 0.28, 0.55, 1.0]; // cumulative lean feel
+      const maxBendDeg = 62; // how far the tip can lean at full melt
+      boneEls.forEach((el, i) => {
+        if (!el) return;
+        const px = el.dataset.pivotX;
+        const py = el.dataset.pivotY;
+        const localWobble = Math.sin(progress * 5 + seed + i) * pattern.wobble * 2;
+        const angle = pattern.skewSign * (progress * maxBendDeg * boneWeights[i] + localWobble);
+        el.setAttribute('transform', `rotate(${angle}, ${px}, ${py})`);
+      });
+    } else if (pattern.key === 'front' || pattern.key === 'back') {
+      // topple toward (front) or away from (back) the viewer using a 3D
+      // rotation around the base. Perspective on #stage gives it depth:
+      // front = tip grows HUGE and rushes toward camera (panic mode),
+      // back  = tip shrinks and sinks away into the haze.
+      const fallDeg = progress * 78; // how far it topples by full melt
+      const wobbleDeg = Math.sin(progress * 5 + seed) * 3;
+      const rotateX = pattern.key === 'front' ? -fallDeg : fallDeg;
+
+      // front grows with an accelerating (eased) curve so the last stretch
+      // feels like it's suddenly right on top of you
+      const frontEase = Math.pow(progress, 1.8);
+      const depthScale = pattern.key === 'front'
+        ? 1 + frontEase * 1.6   // up to ~2.6x at full melt — fills the screen
+        : 1 - progress * 0.3;   // shrinks as it falls away
+
+      // panic shake kicks in near full melt on the front pattern only
+      let shakeX = 0, shakeY = 0;
+      if (pattern.key === 'front' && progress > 0.7) {
+        const shakeAmt = (progress - 0.7) / 0.3; // 0 -> 1
+        shakeX = (Math.random() - 0.5) * shakeAmt * 14;
+        shakeY = (Math.random() - 0.5) * shakeAmt * 10;
+      }
+      const extraDrop = pattern.key === 'front' ? frontEase * 60 : 0;
+
+      tower.style.transform =
+        `translateX(calc(-50% + ${shakeX}px)) translateY(${droop * 0.4 + extraDrop + shakeY}px) scale(${depthScale}) rotateX(${rotateX}deg) rotateZ(${wobbleDeg}deg)`;
+      tower.style.filter = pattern.key === 'back'
+        ? `blur(${blur + progress * 2}px) saturate(${1 + progress * 0.3}) opacity(${1 - progress * 0.35})`
+        : `blur(${blur * 0.4}px) saturate(${1 + progress * 0.8}) brightness(${1 + frontEase * 0.15})`;
+
+      // slight bone wobble on top segments only, for an organic wonky feel
+      const boneWeights = [0, 0.05, 0.15, 0.3, 0.5];
+      boneEls.forEach((el, i) => {
+        if (!el) return;
+        const px = el.dataset.pivotX;
+        const py = el.dataset.pivotY;
+        const localWobble = Math.sin(progress * 6 + seed + i * 1.3) * pattern.wobble * boneWeights[i] * 10;
+        el.setAttribute('transform', `rotate(${localWobble}, ${px}, ${py})`);
+      });
+    } else {
+      // reset bones for non-curve patterns so they render flat as before
+      boneEls.forEach(el => el && el.removeAttribute('transform'));
+
+      tower.style.transform =
+        `translateX(calc(-50% + ${originShift}px)) scaleY(${Math.max(0.32, squash)}) scaleX(${widen}) skewX(${skew}deg) translateY(${droop}px)`;
+      tower.style.filter = `blur(${blur}px) saturate(${1 + progress * 0.6})`;
+    }
+
+    // puddles: for lean patterns, puddle pools toward the lean direction
+    const leanOffset = pattern.key === 'slump' ? 0 : pattern.skewSign * progress * 70;
+    const baseWidth = 50 + progress * 150;
+    const spreadPositions = [
+      { off: leanOffset - baseWidth * 0.35, scale: 1.0 },
+      { off: leanOffset,                     scale: 1.3 },
+      { off: leanOffset + baseWidth * 0.4,   scale: 0.8 },
+    ];
+    puddles.forEach((p, i) => {
+      const sp = spreadPositions[i];
+      const w = baseWidth * sp.scale;
+      const h = (18 + progress * 26) * sp.scale;
+      p.style.width = w + 'px';
+      p.style.height = h + 'px';
+      p.style.left = `calc(50% + ${sp.off}px - ${w/2}px)`;
+      p.style.opacity = progress > 0.12 ? Math.min(0.95, (progress - 0.12) * 1.5) : 0;
+    });
+
+    heat.style.opacity = progress * 0.6;
+
+    const bgStops = [
+      `#FFE9C7 0%`,
+      `#FFD199 35%`,
+      `#FF9A4D ${65 - progress * 20}%`,
+      `hsl(${18 - progress * 12}, 90%, ${58 - progress * 18}%) 100%`
+    ];
+    body.style.background = `linear-gradient(180deg, ${bgStops.join(',')})`;
+
+    if (t >= 60) {
+      patternResult.textContent = `今回の溶け方：${pattern.label}`;
+      medal.classList.add('show');
+    } else {
+      medal.classList.remove('show');
+    }
+  }
+
+  slider.addEventListener('input', update);
+
+  resetBtn.addEventListener('click', () => {
+    slider.value = 28;
+    // reroll the melt personality each time, per request
+    pattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
+    seed = Math.random() * 1000;
+    yajiInput.value = '';
+    ownYajiList = []; // stop repeating past yaji once the tower is reset
+    update();
+  });
+
+  function sendYaji() {
+    const text = yajiInput.value.trim();
+    if (!text) return;
+    spawnComment(text, true);
+    if (!ownYajiList.includes(text)) {
+      ownYajiList.push(text);
+      if (ownYajiList.length > 6) ownYajiList.shift(); // keep it bounded
+    }
+    yajiInput.value = '';
+  }
+  yajiSend.addEventListener('click', sendYaji);
+  yajiInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendYaji();
+  });
+
+  update();
+  startDanmaku();
+  startOwnYajiLoop();
+</script>
+</body>
+</html>
