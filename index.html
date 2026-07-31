@@ -247,6 +247,7 @@
   }
   #yajiInput {
     flex: 1;
+    min-width: 0;
     font-family: inherit;
     font-size: 16px;
     font-weight: 500;
@@ -271,6 +272,7 @@
     opacity: 0.9;
     transition: opacity 0.2s;
     white-space: nowrap;
+    flex-shrink: 0;
   }
   #yajiSend:hover { opacity: 1; }
 
@@ -514,6 +516,26 @@
     danmakuTimer = null;
   }
 
+  // own yaji keeps recurring on its own timer, independent of the random
+  // comment stream, until the user resets (cools the tower down)
+  let ownYajiList = [];
+  let ownYajiTimer = null;
+  function startOwnYajiLoop() {
+    stopOwnYajiLoop();
+    const tick = () => {
+      if (ownYajiList.length > 0) {
+        const idx = Math.floor(Math.random() * ownYajiList.length);
+        spawnComment(ownYajiList[idx], true);
+      }
+      ownYajiTimer = setTimeout(tick, 3200 + Math.random() * 2200);
+    };
+    ownYajiTimer = setTimeout(tick, 3200 + Math.random() * 2200);
+  }
+  function stopOwnYajiLoop() {
+    if (ownYajiTimer) clearTimeout(ownYajiTimer);
+    ownYajiTimer = null;
+  }
+
   function update() {
     const t = parseInt(slider.value, 10);
     tempLabel.textContent = t + '℃';
@@ -641,6 +663,7 @@
     pattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
     seed = Math.random() * 1000;
     yajiInput.value = '';
+    ownYajiList = []; // stop repeating past yaji once the tower is reset
     update();
   });
 
@@ -648,6 +671,10 @@
     const text = yajiInput.value.trim();
     if (!text) return;
     spawnComment(text, true);
+    if (!ownYajiList.includes(text)) {
+      ownYajiList.push(text);
+      if (ownYajiList.length > 6) ownYajiList.shift(); // keep it bounded
+    }
     yajiInput.value = '';
   }
   yajiSend.addEventListener('click', sendYaji);
@@ -657,6 +684,7 @@
 
   update();
   startDanmaku();
+  startOwnYajiLoop();
 </script>
 </body>
 </html>
