@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>東京タワー、溶けます</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@600;800&display=swap');
@@ -142,12 +143,14 @@
     transform: translateX(-50%);
     text-align: center;
     z-index: 10;
+    width: 92%;
+    max-width: 420px;
   }
 
   #label h1 {
     font-family: 'Shippori Mincho', serif;
     font-weight: 800;
-    font-size: 26px;
+    font-size: clamp(24px, 7vw, 30px);
     margin: 0;
     color: #5a2e0d;
     letter-spacing: 0.05em;
@@ -155,10 +158,11 @@
   }
 
   #label p {
-    margin: 3px 0 0;
-    font-size: 12px;
+    margin: 6px 0 0;
+    font-size: clamp(14px, 4vw, 16px);
+    line-height: 1.5;
     color: #7a3f14;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   #hud {
@@ -185,51 +189,52 @@
 
   #tempLabel {
     font-weight: 900;
-    font-size: 14px;
+    font-size: 17px;
     color: #4a2200;
-    min-width: 56px;
+    min-width: 68px;
     text-align: center;
     background: rgba(255,255,255,0.65);
-    border-radius: 8px;
-    padding: 4px 6px;
+    border-radius: 10px;
+    padding: 8px 8px;
   }
 
   input[type=range] {
     flex: 1;
     -webkit-appearance: none;
-    height: 10px;
+    height: 16px;
     border-radius: 999px;
     background: linear-gradient(90deg, #FFD8A8, #FF6B35, #C81E00);
     outline: none;
+    touch-action: pan-x;
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 24px;
-    height: 24px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: #ffffff;
-    border: 4px solid #C81E00;
+    border: 5px solid #C81E00;
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   input[type=range]::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: #ffffff;
-    border: 4px solid #C81E00;
+    border: 5px solid #C81E00;
     cursor: pointer;
   }
 
   #resetBtn {
     font-family: inherit;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 15px;
     color: #fff;
     background: #4a2200;
     border: none;
     border-radius: 999px;
-    padding: 8px 18px;
+    padding: 12px 24px;
     cursor: pointer;
     opacity: 0.85;
     transition: opacity 0.2s;
@@ -243,9 +248,9 @@
   #yajiInput {
     flex: 1;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 500;
-    padding: 8px 14px;
+    padding: 12px 16px;
     border-radius: 999px;
     border: none;
     outline: none;
@@ -256,12 +261,12 @@
   #yajiSend {
     font-family: inherit;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 15px;
     color: #fff;
     background: #C81E00;
     border: none;
     border-radius: 999px;
-    padding: 8px 18px;
+    padding: 12px 22px;
     cursor: pointer;
     opacity: 0.9;
     transition: opacity 0.2s;
@@ -277,40 +282,42 @@
     background: #fff8ec;
     border: 3px solid #C81E00;
     border-radius: 20px;
-    padding: 26px 32px;
+    padding: 28px 26px;
     text-align: center;
     box-shadow: 0 20px 50px rgba(0,0,0,0.35);
     opacity: 0;
     pointer-events: none;
     transition: all 0.5s cubic-bezier(.2,1.4,.4,1);
     z-index: 40;
-    max-width: 260px;
+    width: 88%;
+    max-width: 300px;
   }
   #medal.show {
     opacity: 1;
     transform: translate(-50%,-50%) scale(1);
   }
-  #medal .badge { font-size: 38px; }
+  #medal .badge { font-size: 42px; }
   #medal h2 {
     font-family: 'Shippori Mincho', serif;
-    font-size: 18px;
+    font-size: 21px;
     color: #C81E00;
-    margin: 8px 0 4px;
+    margin: 8px 0 6px;
   }
   #medal p {
-    font-size: 12px;
+    font-size: 14.5px;
+    line-height: 1.5;
     color: #6b4423;
-    margin: 0 0 2px;
+    margin: 0 0 4px;
   }
   #medal .pattern {
-    font-size: 11px;
+    font-size: 13px;
     color: #a85a1e;
     font-weight: 700;
-    margin-top: 6px;
+    margin-top: 8px;
   }
   #medal #resetBtn {
     display: inline-block;
-    margin-top: 16px;
+    margin-top: 18px;
     pointer-events: auto;
   }
 </style>
@@ -323,7 +330,7 @@
 
   <div id="label">
     <h1>東京タワー、溶けます</h1>
-    <p>気温を上げるとタワーが限界を迎えます（毎回、溶け方が変わります）</p>
+    <p>スライダーで気温を上げるとタワーが限界を迎えます<br>応援のヤジも飛ばしてね</p>
   </div>
 
   <div id="stage">
@@ -476,7 +483,7 @@
     const el = document.createElement('div');
     el.className = 'comment';
     el.textContent = text;
-    const fontSize = isOwn ? 24 + Math.random() * 6 : 14 + Math.random() * 14;
+    const fontSize = isOwn ? 26 + Math.random() * 6 : 17 + Math.random() * 15;
     el.style.fontSize = fontSize + 'px';
     if (isOwn) {
       el.style.color = '#FFE44D';
