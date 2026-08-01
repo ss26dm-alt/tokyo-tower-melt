@@ -348,44 +348,105 @@
             <stop offset="0%" stop-color="#FDF6EE"/>
             <stop offset="100%" stop-color="#EDE1D2"/>
           </linearGradient>
+          <linearGradient id="deckGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C3C9CF"/>
+            <stop offset="100%" stop-color="#7C838B"/>
+          </linearGradient>
         </defs>
-        <g id="towerBody">
-          <g id="bone1" data-pivot-x="110" data-pivot-y="472">
-            <path d="M108,26 L38,472 L64,472 L104,150 Z" fill="url(#towerGrad)"/>
-            <path d="M112,26 L182,472 L156,472 L116,150 Z" fill="url(#towerGrad)"/>
-            <path d="M110,26 L64,472 L86,472 L109,140 Z" fill="url(#whiteGrad)" opacity="0.85"/>
-            <path d="M110,26 L156,472 L134,472 L111,140 Z" fill="url(#whiteGrad)" opacity="0.85"/>
-            <path d="M50,440 L170,440" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-            <path d="M56,400 L164,400" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-            <path d="M50,440 L110,360 L170,440" stroke="#B03A00" stroke-width="2.2" fill="none"/>
 
-            <g id="bone2" data-pivot-x="110" data-pivot-y="360">
-              <path d="M62,360 L158,360" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-              <path d="M68,320 L152,320" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-              <path d="M56,400 L110,330 L164,400" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-              <path d="M62,360 L110,300 L158,360" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-              <rect x="72" y="330" width="76" height="20" rx="2" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
+        <!-- ============================================================
+             8パーツ構成（下から上）:
+             底部トラス下半(bone1) → 底部トラス上半(bone2) → 下展望台(rigid)
+             → 中間部トラス下半(bone3) → 中間部トラス上半(bone4)
+             → 上展望台・地デジ放送アンテナ・頂部(rigid, deck2Group)
+             溶けるのは bone1〜bone4 の4パーツのみ。
+             ============================================================ -->
+        <g id="bone1" data-pivot-x="110" data-pivot-y="472">
+          <g id="bone1Deform">
+            <!-- 底部トラス下半（急テーパー・オレンジ） -->
+            <polygon points="22,472 198,472 154,379 66,379" fill="url(#towerGrad)"/>
+            <g stroke="#B03A00" stroke-width="1.2" fill="none" opacity="0.85">
+              <line x1="44" y1="425.5" x2="176" y2="425.5"/>
+              <polyline points="22,472 176,425.5 66,379"/>
+              <polyline points="198,472 44,425.5 154,379"/>
+            </g>
+            <g stroke="#4a2200" stroke-width="1.2" fill="none">
+              <line x1="22" y1="472" x2="66" y2="379"/>
+              <line x1="198" y1="472" x2="154" y2="379"/>
+            </g>
+          </g>
 
-              <g id="bone3" data-pivot-x="110" data-pivot-y="240">
-                <path d="M75,280 L145,280" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-                <path d="M82,240 L138,240" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-                <path d="M89,200 L131,200" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-                <path d="M68,320 L110,270 L152,320" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-                <path d="M75,280 L110,240 L145,280" stroke="#B03A00" stroke-width="2.2" fill="none"/>
-                <path d="M82,240 L110,210 L138,240" stroke="#B03A00" stroke-width="2.2" fill="none"/>
+          <g id="bone2" data-pivot-x="110" data-pivot-y="379">
+            <g id="bone2Deform">
+              <!-- 底部トラス上半（なだらかテーパー・白） -->
+              <polygon points="66,379 154,379 140,285 80,285" fill="url(#whiteGrad)"/>
+              <g stroke="#B03A00" stroke-width="1.2" fill="none" opacity="0.85">
+                <line x1="73" y1="332" x2="147" y2="332"/>
+                <polyline points="66,379 147,332 80,285"/>
+                <polyline points="154,379 73,332 140,285"/>
+              </g>
+              <g stroke="#4a2200" stroke-width="1.2" fill="none">
+                <line x1="66" y1="379" x2="80" y2="285"/>
+                <line x1="154" y1="379" x2="140" y2="285"/>
+                <!-- 下展望台への段差(外形線) -->
+                <line x1="80" y1="285" x2="71" y2="285"/>
+                <line x1="140" y1="285" x2="149" y2="285"/>
+              </g>
+            </g>
 
-                <g id="bone4" data-pivot-x="110" data-pivot-y="150">
-                  <rect x="86" y="160" width="48" height="30" rx="3" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
-                  <rect x="95" y="95" width="30" height="20" rx="2" fill="#FFB27A" stroke="#B03A00" stroke-width="2"/>
+            <g id="deck1">
+              <!-- 下展望台：逆台形（上辺広・下辺短）・グレー金属・剛体 -->
+              <polygon points="71,285 149,285 158,261 62,261" fill="url(#deckGrad)" stroke="#5f6368" stroke-width="1.2"/>
+            </g>
 
-                  <g id="bone5" data-pivot-x="110" data-pivot-y="95">
-                    <path d="M107,26 L100,95 L120,95 L113,26 Z" fill="url(#towerGrad)" stroke="#B03A00" stroke-width="1.5"/>
-                    <line x1="102" y1="80" x2="118" y2="80" stroke="#B03A00" stroke-width="1.3"/>
-                    <line x1="103" y1="65" x2="117" y2="65" stroke="#B03A00" stroke-width="1.3"/>
-                    <line x1="104" y1="50" x2="116" y2="50" stroke="#B03A00" stroke-width="1.3"/>
-                    <line x1="110" y1="4" x2="110" y2="27" stroke="#B03A00" stroke-width="3"/>
-                    <circle cx="110" cy="3" r="3" fill="#FFD23F"/>
+            <g id="bone3" data-pivot-x="110" data-pivot-y="261">
+              <g id="bone3Deform">
+                <!-- 中間部トラス下半（オレンジ） -->
+                <polygon points="82,261 138,261 133,205 87,205" fill="url(#towerGrad)"/>
+                <g stroke="#B03A00" stroke-width="1.1" fill="none" opacity="0.85">
+                  <line x1="84.5" y1="233" x2="135.5" y2="233"/>
+                  <polyline points="82,261 135.5,233 87,205"/>
+                  <polyline points="138,261 84.5,233 133,205"/>
+                </g>
+                <g stroke="#4a2200" stroke-width="1.1" fill="none">
+                  <line x1="82" y1="261" x2="87" y2="205"/>
+                  <line x1="138" y1="261" x2="133" y2="205"/>
+                  <!-- 下展望台からの段差(外形線) -->
+                  <line x1="62" y1="261" x2="82" y2="261"/>
+                  <line x1="158" y1="261" x2="138" y2="261"/>
+                </g>
+              </g>
+
+              <g id="bone4" data-pivot-x="110" data-pivot-y="205">
+                <g id="bone4Deform">
+                  <!-- 中間部トラス上半（白） -->
+                  <polygon points="87,205 133,205 128,149 92,149" fill="url(#whiteGrad)"/>
+                  <g stroke="#B03A00" stroke-width="1.1" fill="none" opacity="0.85">
+                    <line x1="89.5" y1="177" x2="130.5" y2="177"/>
+                    <polyline points="87,205 130.5,177 92,149"/>
+                    <polyline points="133,205 89.5,177 128,149"/>
                   </g>
+                  <g stroke="#4a2200" stroke-width="1.1" fill="none">
+                    <line x1="87" y1="205" x2="92" y2="149"/>
+                    <line x1="133" y1="205" x2="128" y2="149"/>
+                  </g>
+                </g>
+
+                <g id="deck2Group">
+                  <!-- 上展望台：薄い円盤（側面）・グレー金属・剛体 -->
+                  <ellipse cx="110" cy="142.5" rx="35" ry="7" fill="url(#deckGrad)" stroke="#5f6368" stroke-width="1.2"/>
+
+                  <!-- 地デジ放送アンテナ：円柱、オレンジ・白×2周縞・剛体 -->
+                  <rect x="82" y="126.75" width="56" height="9.25" fill="url(#towerGrad)"/>
+                  <rect x="82" y="117.5" width="56" height="9.25" fill="url(#whiteGrad)"/>
+                  <rect x="82" y="108.25" width="56" height="9.25" fill="url(#towerGrad)"/>
+                  <rect x="82" y="99" width="56" height="9.25" fill="url(#whiteGrad)"/>
+                  <rect x="82" y="99" width="56" height="37" fill="none" stroke="#5f6368" stroke-width="1.2"/>
+
+                  <!-- 頂部：下は円柱、先端だけ絞る・オレンジ・剛体 -->
+                  <rect x="100" y="47" width="20" height="52" fill="url(#towerGrad)" stroke="#B03A00" stroke-width="1.2"/>
+                  <polygon points="100,47 120,47 110,25" fill="url(#towerGrad)" stroke="#B03A00" stroke-width="1.2"/>
+                  <circle cx="110" cy="25" r="2.2" fill="#FFD23F"/>
                 </g>
               </g>
             </g>
@@ -437,16 +498,22 @@
 
   /* ---------- melt "personality" — randomized each run ---------- */
   const PATTERNS = [
-    { key: 'left',      label: '左くねくねタイプ', skewSign: 1,  squashBias: 1.0,  wobble: 1.0 },
-    { key: 'right',     label: '右くねくねタイプ', skewSign: -1, squashBias: 1.0,  wobble: 1.0 },
+    { key: 'left',      label: '右くねくねタイプ', skewSign: 1,  squashBias: 1.0,  wobble: 1.0 },
+    { key: 'right',     label: '左くねくねタイプ', skewSign: -1, squashBias: 1.0,  wobble: 1.0 },
     { key: 'slump',     label: 'ベシャッと潰れタイプ', skewSign: 0,  squashBias: 1.5,  wobble: 0.3 },
     { key: 'curveLeft', label: '右に曲がって崩れるタイプ', skewSign: 1, squashBias: 0.9, wobble: 0.6 },
     { key: 'curveRight', label: '左に曲がって崩れるタイプ', skewSign: -1, squashBias: 0.9, wobble: 0.6 },
     { key: 'front',      label: '手前に倒れるタイプ', skewSign: 0, squashBias: 1.0, wobble: 0.4 },
     { key: 'back',       label: '奥に倒れるタイプ', skewSign: 0, squashBias: 1.0, wobble: 0.4 },
   ];
-  // bones from base (bone1) to tip (bone5); each carries the ones above it
-  const boneEls = ['bone1','bone2','bone3','bone4','bone5'].map(id => document.getElementById(id));
+
+  // 4本の溶解ボーン(底部下半→底部上半→中間下半→中間上半、根本から先端の順)
+  // 各ボーンは「自分の見た目(Deform)」と「剛体の子要素(展望台等)」を内包する入れ子構造。
+  const boneEls = ['bone1', 'bone2', 'bone3', 'bone4'].map(id => document.getElementById(id));
+  const deformEls = ['bone1Deform', 'bone2Deform', 'bone3Deform', 'bone4Deform'].map(id => document.getElementById(id));
+  // 剛体パーツ(展望台・アンテナ・頂部)：形は崩れず、にじみ演出のみ加える
+  const rigidEls = [document.getElementById('deck1'), document.getElementById('deck2Group')];
+
   let pattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
   let seed = Math.random() * 1000;
 
@@ -544,52 +611,50 @@
 
     // base melt math, modulated by chosen pattern + a per-run seed for organic variation
     const wobble = Math.sin(progress * 6 + seed) * pattern.wobble;
-    const squash = 1 - progress * 0.62 * pattern.squashBias;
-    const widen = 1 + progress * (pattern.key === 'slump' ? 0.75 : 0.4);
-    const skew = pattern.key === 'slump'
-      ? wobble * 3
-      : pattern.skewSign * (progress * 16 + wobble * 4);
     const blur = progress * 3.2;
     const droop = progress * (pattern.key === 'slump' ? 55 : 40);
-    const originShift = pattern.key === 'slump' ? 0 : pattern.skewSign * progress * 18;
+
+    // reset bone/deform transforms every frame before re-applying the current pattern
+    boneEls.forEach(el => el && el.removeAttribute('transform'));
+    deformEls.forEach(el => el && el.removeAttribute('transform'));
 
     if (pattern.key === 'curveLeft' || pattern.key === 'curveRight') {
       // curved bend: base barely moves, each bone above adds more lean,
-      // producing a smooth C-curve instead of a straight skew.
+      // producing a smooth C-curve. Rotation is a rigid transform, so the
+      // rigid decks/antenna/tip riding on top of each bone stay undeformed.
       tower.style.transform = `translateX(-50%) translateY(${droop * 0.5}px)`;
       tower.style.filter = `blur(${blur}px) saturate(${1 + progress * 0.6})`;
 
-      // per-bone angle grows from base to tip (base ~0deg, tip most bent)
-      const boneWeights = [0.02, 0.12, 0.28, 0.55, 1.0]; // cumulative lean feel
-      const maxBendDeg = 62; // how far the tip can lean at full melt
+      const boneWeights = [0.05, 0.22, 0.5, 1.0]; // base -> tip lean weight
+      const maxBendDeg = 62;
       boneEls.forEach((el, i) => {
         if (!el) return;
         const px = el.dataset.pivotX;
         const py = el.dataset.pivotY;
-        const localWobble = Math.sin(progress * 5 + seed + i) * pattern.wobble * 2;
+        // multiplied by progress so the wobble amplitude is exactly 0 at
+        // progress=0 — otherwise the random seed can leave the tower
+        // slightly crooked even at 28℃ (rest pose).
+        const localWobble = Math.sin(progress * 5 + seed + i) * pattern.wobble * 2 * progress;
         const angle = pattern.skewSign * (progress * maxBendDeg * boneWeights[i] + localWobble);
         el.setAttribute('transform', `rotate(${angle}, ${px}, ${py})`);
       });
     } else if (pattern.key === 'front' || pattern.key === 'back') {
       // topple toward (front) or away from (back) the viewer using a 3D
-      // rotation around the base. Perspective on #stage gives it depth:
-      // front = tip grows HUGE and rushes toward camera (panic mode),
-      // back  = tip shrinks and sinks away into the haze.
-      const fallDeg = progress * 78; // how far it topples by full melt
-      const wobbleDeg = Math.sin(progress * 5 + seed) * 3;
+      // rotation around the base. This is applied uniformly to the whole
+      // #tower element, so it's a rigid transform (rotate + uniform scale)
+      // that doesn't distort the rigid deck/antenna/tip parts.
+      const fallDeg = progress * 78;
+      const wobbleDeg = Math.sin(progress * 5 + seed) * 3 * progress;
       const rotateX = pattern.key === 'front' ? -fallDeg : fallDeg;
 
-      // front grows with an accelerating (eased) curve so the last stretch
-      // feels like it's suddenly right on top of you
       const frontEase = Math.pow(progress, 1.8);
       const depthScale = pattern.key === 'front'
-        ? 1 + frontEase * 1.6   // up to ~2.6x at full melt — fills the screen
-        : 1 - progress * 0.3;   // shrinks as it falls away
+        ? 1 + frontEase * 1.6
+        : 1 - progress * 0.3;
 
-      // panic shake kicks in near full melt on the front pattern only
       let shakeX = 0, shakeY = 0;
       if (pattern.key === 'front' && progress > 0.7) {
-        const shakeAmt = (progress - 0.7) / 0.3; // 0 -> 1
+        const shakeAmt = (progress - 0.7) / 0.3;
         shakeX = (Math.random() - 0.5) * shakeAmt * 14;
         shakeY = (Math.random() - 0.5) * shakeAmt * 10;
       }
@@ -602,22 +667,78 @@
         : `blur(${blur * 0.4}px) saturate(${1 + progress * 0.8}) brightness(${1 + frontEase * 0.15})`;
 
       // slight bone wobble on top segments only, for an organic wonky feel
-      const boneWeights = [0, 0.05, 0.15, 0.3, 0.5];
+      // (rotation only, so rigid parts stay rigid)
+      const boneWeights = [0, 0.08, 0.2, 0.4];
       boneEls.forEach((el, i) => {
         if (!el) return;
         const px = el.dataset.pivotX;
         const py = el.dataset.pivotY;
-        const localWobble = Math.sin(progress * 6 + seed + i * 1.3) * pattern.wobble * boneWeights[i] * 10;
+        // multiplied by progress for the same reason as above: keeps the
+        // tower perfectly upright at progress=0 regardless of the seed.
+        const localWobble = Math.sin(progress * 6 + seed + i * 1.3) * pattern.wobble * boneWeights[i] * 10 * progress;
         el.setAttribute('transform', `rotate(${localWobble}, ${px}, ${py})`);
       });
     } else {
-      // reset bones for non-curve patterns so they render flat as before
-      boneEls.forEach(el => el && el.removeAttribute('transform'));
-
-      tower.style.transform =
-        `translateX(calc(-50% + ${originShift}px)) scaleY(${Math.max(0.32, squash)}) scaleX(${widen}) skewX(${skew}deg) translateY(${droop}px)`;
+      // left / right / slump: lean+zigzag is driven entirely by bone
+      // ROTATION (same mechanism as the curve patterns above), because
+      // rotation is a rigid transform — it carries the whole subtree
+      // (rigid decks/antenna/tip AND every bone above it) along with it,
+      // so there's no seam between segments. Squash/widen (the actual
+      // "melting" look) is applied only to each bone's own Deform
+      // sub-group, anchored at its pivot. Shrinking a segment's height
+      // would normally leave everything above it floating in its old
+      // (taller) position, so each bone also gets a downward translate
+      // equal to the height it lost to squash, keeping the chain visually
+      // attached all the way up.
+      tower.style.transform = `translateX(-50%)`;
       tower.style.filter = `blur(${blur}px) saturate(${1 + progress * 0.6})`;
+
+      const boneWeights = [0.08, 0.25, 0.55, 1.0];
+      const segmentHeights = [93, 94, 56, 56]; // bone1..bone4 own Deform height at rest
+      const maxLeanDeg = pattern.key === 'slump' ? 0 : 26;
+
+      boneEls.forEach((el, i) => {
+        if (!el) return;
+        const w = boneWeights[i];
+        const px = el.dataset.pivotX;
+        const py = el.dataset.pivotY;
+
+        // zigzag: phase-shifted per bone index (i*2.2) so neighbouring
+        // segments kink differently from each other, layered on top of a
+        // shared lean direction — reads as "jagged" without ever breaking
+        // the chain (it's still just a rotation).
+        // multiplied by progress so the tower is exactly upright at 28℃
+        // (progress=0) no matter what the random seed happens to be.
+        const zigzag = Math.sin(progress * 5 + seed + i * 2.2) * pattern.wobble * 9 * w * progress;
+        const angle = pattern.skewSign * progress * maxLeanDeg * w + zigzag;
+        const leanShift = pattern.key === 'slump' ? 0 : pattern.skewSign * progress * 4 * w;
+
+        const deformEl = deformEls[i];
+        let localSquash = 1;
+        if (deformEl) {
+          localSquash = Math.max(0.3, 1 - progress * 0.75 * pattern.squashBias * w);
+          const localWiden = 1 + progress * (pattern.key === 'slump' ? 0.7 : 0.22) * w;
+          // scale has no built-in center point (unlike rotate(a,cx,cy)), so
+          // it must be anchored manually at this segment's own pivot —
+          // otherwise SVG scales relative to the (0,0) origin and the
+          // segment jumps to a wildly different position.
+          deformEl.setAttribute('transform',
+            `translate(${px},${py}) scale(${localWiden}, ${localSquash}) translate(${-px},${-py})`);
+        }
+        const compensateY = segmentHeights[i] * (1 - localSquash);
+
+        // rigid motion for this bone (and everything nested in it, incl.
+        // the next bone and any rigid deck/antenna/tip children): rotate
+        // for lean+zigzag, plus a downward shift so it follows the melt
+        // below it instead of floating above it.
+        el.setAttribute('transform', `translate(${leanShift},${compensateY}) rotate(${angle}, ${px}, ${py})`);
+      });
     }
+
+    // rigid parts (decks / antenna / tip) don't deform, but they do get a
+    // subtle blur-based "にじみ" (bleeding) treatment as the temperature rises
+    const rigidBlur = progress * 1.4;
+    rigidEls.forEach(el => { if (el) el.style.filter = `blur(${rigidBlur}px)`; });
 
     // puddles: for lean patterns, puddle pools toward the lean direction
     const leanOffset = pattern.key === 'slump' ? 0 : pattern.skewSign * progress * 70;
